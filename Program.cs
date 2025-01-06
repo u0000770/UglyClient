@@ -170,6 +170,7 @@ class Program
                 case "5":
                     //await RunTemperatureControlLoop(client);
                     Console.WriteLine("Starting temperature control algorithm...");
+                    Console.Write("Provide a final Temp Value: ");
                     double currentTemperature = await GetAverageTemperature(client);
                     while (true)
                     {
@@ -386,6 +387,14 @@ class Program
 
         double currentTemperature = await GetAverageTemperature(client);
 
+        // Prompt user for the final target temperature in Phase 4
+        Console.Write("Enter the final target temperature for Phase 4: ");
+        if (!double.TryParse(Console.ReadLine(), out double finalTargetTemperature))
+        {
+            Console.WriteLine("Invalid input. Please enter a valid numeric temperature.");
+            return;
+        }
+
         while (true)
         {
             // Phase 1: Gradually increase to 20°C over 30 seconds
@@ -397,9 +406,9 @@ class Program
             // Phase 3: Hold at 16°C for 10 seconds
             currentTemperature = await HoldTemperature(client, currentTemperature, 16.0, 10);
 
-            // Phase 4: Gradually return to 18°C and maintain
-            currentTemperature = await AdjustTemperature(client, currentTemperature, 18.0, 20);
-            currentTemperature = await HoldTemperature(client, currentTemperature, 18.0, int.MaxValue); // Maintain until exit
+            // Phase 4: Gradually adjust to the user-defined target temperature and maintain
+            currentTemperature = await AdjustTemperature(client, currentTemperature, finalTargetTemperature, 20);
+            currentTemperature = await HoldTemperature(client, currentTemperature, finalTargetTemperature, int.MaxValue); // Maintain until exit
         }
     }
 
